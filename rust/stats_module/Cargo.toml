@@ -1,0 +1,9 @@
+[package]
+name = "stats_module"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+netconsd_module = {path = "../module"}
+once_cell = "1.15.0"
+termion = "2.0.1"

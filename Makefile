@@ -18,6 +18,8 @@ debug debug32: LDFLAGS ?= -lasan -lubsan
 
 disasm: CFLAGS += -fverbose-asm
 
+rlib: CFLAGS += -D STATIC_PIPELINE
+
 binary = netconsd
 lib = ncrx/libncrx.o
 liball = libnetconsd.a

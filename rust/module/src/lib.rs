@@ -17,10 +17,10 @@ use std::os::raw::c_void;
 
 pub use libc::in6_addr;
 use libc::iovec;
+use std::net::Ipv6Addr;
 pub use libc::sockaddr_in6;
 
 #[repr(C)]
-#[derive(Debug)]
 pub struct MsgBuf {
     pub next: *const MsgBuf,
     pub iovec: iovec,
@@ -79,7 +79,7 @@ impl NcrxMsg {
 pub fn format_in6_addr_ptr(ptr: *const in6_addr) -> String {
     match unsafe { ptr.as_ref() } {
         None => "NULL".to_owned(),
-        Some(x) => format!("{:x?}", x.s6_addr),
+        Some(x) => format!("{}", Ipv6Addr::from(x.s6_addr)),
     }
 }
 
@@ -123,3 +123,4 @@ impl fmt::Display for MsgBuf {
         write!(formatter, "{}", str_from_c_void(self.iovec.iov_base))
     }
 }
+

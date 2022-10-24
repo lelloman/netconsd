@@ -16,39 +16,32 @@ use netconsd_module::NcrxMsg;
 
 fn fmt_ptr<T: std::fmt::Display>(ptr: *const T) -> String {
     match unsafe { ptr.as_ref() } {
-        None => "NULL".to_owned(),
+        None => "".to_owned(),
         Some(x) => format!("{}", x),
     }
 }
 
-#[no_mangle]
-pub extern "C" fn netconsd_output_init(nr_workers: c_int) -> c_int {
-    println!(
-        "Rust example module init! netconsd will use {} workers",
-        nr_workers
-    );
+pub fn netconsd_output_init(nr_workers: c_int) -> c_int {
+    println!("Rust printer module init ({} workers)", nr_workers);
     0
 }
 
-#[no_mangle]
-pub extern "C" fn netconsd_output_handler(
+pub fn netconsd_output_handler(
     t: c_int,
     in6_addr: *const in6_addr,
     buf: *const MsgBuf,
     msg: *const NcrxMsg,
 ) -> i32 {
     println!(
-        "Received message from {} on thread {}",
+        "[{}] {} {}{}",
+        t,
         format_in6_addr_ptr(in6_addr),
-        t
+        fmt_ptr(buf),
+        fmt_ptr(msg)
     );
-
-    println!("Buf: {}", fmt_ptr(buf));
-    println!("Msg: {}", fmt_ptr(msg));
     0
 }
 
-#[no_mangle]
-pub extern "C" fn netconsd_output_exit() {
-    println!("Rust example module bye bye");
+pub fn netconsd_output_exit() {
+    println!("Rust printer module unloaded.");
 }

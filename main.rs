@@ -18,9 +18,12 @@ use libc::SIGPIPE;
 use libc::SIGTERM;
 use libc::SIGUSR1;
 use libc::SIG_BLOCK;
+use static_modules::invoke_static_modules;
 use libc::SIG_IGN;
 use std::ffi::CStr;
 use std::ffi::CString;
+use netconsd_module::NcrxMsg;
+use netconsd_module::MsgBuf;
 use std::mem::MaybeUninit;
 use std::net::Ipv6Addr;
 use std::os::raw::c_char;
@@ -29,12 +32,6 @@ use std::os::raw::c_uint;
 use std::os::raw::c_void;
 use std::str::FromStr;
 
-extern "C" {
-    fn register_output_module(path: *const c_char, nr_workers: c_int);
-    fn create_threads(params: &netconsd_params) -> *const c_void;
-    fn destroy_threads(ctl: *const c_void);
-    fn destroy_output_modules();
-}
 
 #[repr(C)]
 #[derive(Copy, Clone)]
@@ -45,6 +42,13 @@ pub struct netconsd_params {
     pub gc_int_ms: c_uint,
     pub gc_age_ms: c_uint,
     pub listen_addr: sockaddr_in6,
+}
+
+extern "C" {
+    fn register_output_module(path: *const c_char, nr_workers: c_int);
+    fn create_threads(params: &netconsd_params) -> *const c_void;
+    fn destroy_threads(ctl: *const c_void);
+    fn destroy_output_modules();
 }
 
 #[derive(Debug)]
@@ -169,11 +173,22 @@ fn get_netconsd_params(cli_args: &CliArgs) -> netconsd_params {
     }
 }
 
+#[no_mangle]
+extern "C" fn execute_static_output_pipeline(thread_nr: c_int, src: *const in6_addr,buf: *const MsgBuf,msg: *const NcrxMsg) -> c_int {
+    invoke_static_modules! {
+        netconsd_output_handler(thread_nr, src, buf, msg);
+    }
+    0
+}
+
 fn main() {
     let cli_args = CliArgs::parse();
     let params = get_netconsd_params(&cli_args);
-
     unsafe {
+
+        invoke_static_modules! {
+            netconsd_output_init(params.nr_workers);
+        }
         for module in cli_args.modules.iter() {
             let path = CString::new(module.as_str()).unwrap();
             register_output_module(path.as_ptr(), params.nr_workers);
@@ -194,6 +209,9 @@ fn main() {
         );
 
         destroy_threads(ctl);
+        invoke_static_modules! {
+            netconsd_output_exit();
+        }
         destroy_output_modules();
     };
 }

@@ -98,6 +98,10 @@ void destroy_output_modules(void)
 void execute_output_pipeline(int thread_nr, struct in6_addr *src,
 		struct msg_buf *buf, struct ncrx_msg *msg)
 {
+	#ifdef STATIC_PIPELINE
+	execute_static_output_pipeline(thread_nr, src, buf, msg);
+	#endif
+	
 	int i;
 
 	for (i = 0; i < nr_outputs; i++)

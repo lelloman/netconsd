@@ -1,0 +1,7 @@
+[package]
+name = "printer_module"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+netconsd_module = {path = "../module"}
