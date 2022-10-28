@@ -114,7 +114,7 @@ impl fmt::Display for NcrxMsg {
     }
 }
 
-fn str_from_c_void(ptr: *const c_void) -> &'static str {
+pub fn str_from_c_void(ptr: *const c_void) -> &'static str {
     unsafe { CStr::from_ptr(ptr as *const c_char).to_str().unwrap() }
 }
 

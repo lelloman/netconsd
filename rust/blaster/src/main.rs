@@ -31,6 +31,9 @@ struct CliArgs {
 
     #[clap(short = 'r', long, default_value_t = 0)]
     sender_ip_rnd_bytes: usize,
+
+    #[clap(short, long)]
+    legacy: bool,
 }
 
 fn format_duration(duration: &Duration) -> String {
@@ -52,7 +55,7 @@ fn main() {
             packets_count: args.packets,
             dst_port: args.port,
             sleep_duration,
-            extended_msg: true,
+            extended_msg: !args.legacy,
             sender_addr_rnd_bytes: args.sender_ip_rnd_bytes,
         };
         workers.push(thread::spawn(move || {

@@ -16,6 +16,7 @@ netconsd_module = {path = "rust/module"}
 static_modules = {path = "rust/static_modules"}
 printer_module = {path = "rust/printer_module", optional = true}
 stats_module = {path = "rust/stats_module", optional = true}
+sqlite_module = {path = "rust/sqlite_module", optional = true}
 
 [profile.release]
 lto = true
@@ -24,3 +25,4 @@ strip = true
 [features]
 printer = ["printer_module"]
 stats = ["stats_module"]
+sqlite = ["sqlite_module"]

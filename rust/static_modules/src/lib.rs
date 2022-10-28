@@ -1,7 +1,7 @@
 use proc_macro::TokenStream;
 
 fn get_features() -> Vec<&'static str> {
-    vec!["printer", "stats"]
+    vec!["printer", "stats", "sqlite"]
 }
 
 #[proc_macro]
